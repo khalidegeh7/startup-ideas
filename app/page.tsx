@@ -1,65 +1,144 @@
-import Image from "next/image";
+"use client";
+
+import { useMemo, useState } from "react";
+import { FilterBar } from "@/components/FilterBar";
+import { GenerateIdeaModal } from "@/components/GenerateIdeaModal";
+import { Hero } from "@/components/Hero";
+import { IdeaGrid } from "@/components/IdeaGrid";
+import { SampleSummary } from "@/components/SampleSummary";
+import { ScopeCallout } from "@/components/ScopeCallout";
+import { SiteFooter } from "@/components/SiteFooter";
+import { SiteHeader } from "@/components/SiteHeader";
+import { SkipLink } from "@/components/SkipLink";
+import { StatsBar } from "@/components/StatsBar";
+import { TrustRow } from "@/components/TrustRow";
+import { ValueColumns } from "@/components/ValueColumns";
+import type { Category, Difficulty } from "@/data/ideas";
+import { ideas as allIdeas } from "@/data/ideas";
+
+function matchesSearch(
+  query: string,
+  title: string,
+  description: string,
+  category: string,
+) {
+  const q = query.trim().toLowerCase();
+  if (!q) return true;
+  return (
+    title.toLowerCase().includes(q) ||
+    description.toLowerCase().includes(q) ||
+    category.toLowerCase().includes(q)
+  );
+}
+
+const sampleIdea = allIdeas.find((i) => i.id === "1") ?? allIdeas[0]!;
 
 export default function Home() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [category, setCategory] = useState<Category | "All">("All");
+  const [difficulty, setDifficulty] = useState<Difficulty | "All">("All");
+  const [generateOpen, setGenerateOpen] = useState(false);
+  const [generateModalKey, setGenerateModalKey] = useState(0);
+
+  const filtered = useMemo(() => {
+    return allIdeas.filter((idea) => {
+      if (category !== "All" && idea.category !== category) return false;
+      if (difficulty !== "All" && idea.difficulty !== difficulty)
+        return false;
+      return matchesSearch(
+        searchQuery,
+        idea.title,
+        idea.description,
+        idea.category,
+      );
+    });
+  }, [searchQuery, category, difficulty]);
+
+  const hasActiveFilters =
+    searchQuery.trim() !== "" ||
+    category !== "All" ||
+    difficulty !== "All";
+
+  function clearFilters() {
+    setSearchQuery("");
+    setCategory("All");
+    setDifficulty("All");
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="flex min-h-full flex-col bg-[var(--background)]">
+      <SkipLink />
+      <SiteHeader />
+
+      <main id="main">
+        <Hero
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          onGenerateClick={() => {
+            setGenerateModalKey((k) => k + 1);
+            setGenerateOpen(true);
+          }}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+        <TrustRow />
+        <ValueColumns />
+        <StatsBar />
+        <ScopeCallout />
+        <SampleSummary idea={sampleIdea} />
+
+        <section
+          id="catalog"
+          aria-labelledby="catalog-heading"
+          className="scroll-mt-24 border-b border-[var(--border)] bg-[var(--background)]"
+        >
+          <FilterBar
+            category={category}
+            difficulty={difficulty}
+            onCategoryChange={setCategory}
+            onDifficultyChange={setDifficulty}
+          />
+
+          <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+            <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <h2
+                  id="catalog-heading"
+                  className="font-serif text-2xl font-semibold text-[var(--foreground)]"
+                >
+                  Catalog
+                </h2>
+                <p className="mt-1 text-sm text-[var(--muted)]">
+                  Showing {filtered.length} of {allIdeas.length} ideas with your
+                  filters. The grid below updates live as you search and refine.
+                </p>
+              </div>
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={clearFilters}
+                  className="shrink-0 self-start rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm font-semibold text-[var(--foreground)] shadow-sm transition-colors hover:bg-stone-50 dark:bg-stone-950 dark:hover:bg-stone-900 sm:self-auto"
+                >
+                  Clear search &amp; filters
+                </button>
+              )}
+            </div>
+            <IdeaGrid
+              ideas={filtered}
+              onClearFilters={clearFilters}
+              showClearWhenEmpty={hasActiveFilters}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+          </div>
+        </section>
       </main>
+
+      <SiteFooter />
+
+      {generateOpen && (
+        <GenerateIdeaModal
+          key={generateModalKey}
+          onClose={() => setGenerateOpen(false)}
+          pool={allIdeas}
+        />
+      )}
     </div>
   );
 }

@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Startup Ideas
 
-## Getting Started
+A Next.js (App Router) demo: curated “startup idea” listings with search, filters, a Brickly-inspired long-form layout, and a sample investor-style summary block.
 
-First, run the development server:
+## Prerequisites
+
+- Node.js 20+ recommended
+- npm (ships with Node)
+
+## Local setup
+
+```bash
+npm install
+cp .env.example .env.local
+```
+
+Edit `.env.local` if you want to override the site URL locally (optional). By default, metadata uses `http://localhost:3000`.
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `NEXT_PUBLIC_SITE_URL` | No | Public URL of the site, **no trailing slash** (e.g. `https://startup-ideas.vercel.app`). Drives `metadataBase` for Open Graph and social previews. Defaults to `http://localhost:3000` when unset. |
 
-## Learn More
+Copy from `.env.example` and commit **only** `.env.example`, not `.env.local`.
 
-To learn more about Next.js, take a look at the following resources:
+## Scripts
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Development server with hot reload |
+| `npm run build` | Production build |
+| `npm run start` | Run production build locally |
+| `npm run lint` | ESLint |
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Push the repo to GitHub/GitLab/Bitbucket.
+2. Import the project in [Vercel](https://vercel.com/new).
+3. Framework preset: **Next.js** (auto-detected).
+4. Under **Environment Variables**, add:
+   - **Name:** `NEXT_PUBLIC_SITE_URL`
+   - **Value:** your production URL, e.g. `https://<project>.vercel.app` (use the real domain once you have it; update if you add a custom domain).
+5. Deploy. After the first deploy, update `NEXT_PUBLIC_SITE_URL` to the final URL if it changed, then redeploy so link previews use the correct base.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+No extra `vercel.json` is required for a standard Next.js app.
+
+## Attribution
+
+UI structure and copy rhythm are **inspired by** [Brickly](https://bricklyhomes.netlify.app/) (investor-style long-form landing). This project is an independent demo with original branding and data.
