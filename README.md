@@ -1,6 +1,6 @@
 # Startup Ideas
 
-A Next.js (App Router) demo: curated “startup idea” listings with search, filters, a Brickly-inspired long-form layout, and a sample investor-style summary block.
+A Next.js (App Router) demo: curated “startup idea” listings with search, filters, a long-form layout, and a sample investor-style summary block.
 
 ## Prerequisites
 
